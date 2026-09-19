@@ -1,14 +1,7 @@
 package roomescape.domain.time.repository;
 
+import org.springframework.data.repository.ListCrudRepository;
 import roomescape.domain.time.entity.Time;
 
-import java.util.List;
-
-public interface TimeRepository {
-
-    List<Time> findAll();
-
-    Time save(Time time);
-
-    void deleteById(Long timeId);
+public interface TimeRepository extends ListCrudRepository<Time,Long> {
 }

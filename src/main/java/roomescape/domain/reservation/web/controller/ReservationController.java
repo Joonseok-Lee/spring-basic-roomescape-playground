@@ -1,9 +1,9 @@
 package roomescape.domain.reservation.web.controller;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import roomescape.domain.auth.principal.LoginMember;
 import roomescape.domain.auth.web.support.annotation.AdminOnly;
@@ -13,15 +13,15 @@ import roomescape.domain.reservation.entity.Reservation;
 import roomescape.domain.reservation.service.ReservationService;
 import roomescape.domain.reservation.web.dto.ReservationRequest;
 import roomescape.domain.reservation.web.dto.ReservationResponse;
-import roomescape.global.exception.ForbiddenException;
+import roomescape.global.exception.BadRequestException;
+import roomescape.global.exception.ConflictException;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ReservationController {
-
-    private final Logger log =  LoggerFactory.getLogger(ReservationController.class);
 
     private final ReservationService reservationService;
 
@@ -38,19 +38,24 @@ public class ReservationController {
     @LoginRequired
     @PostMapping("/reservations")
     public ResponseEntity<ReservationResponse> create(
-            @Valid @RequestBody ReservationRequest reservationRequest,
+            @Valid @RequestBody ReservationRequest request,
             @Login LoginMember loginMember
     ) {
-        String username = reservationRequest.name();
+        Reservation newReservation;
 
-        if (username == null || username.isBlank()) {
-            username = loginMember.getName();
-        } else if (!loginMember.isAdmin()) {
-            throw new ForbiddenException();
+        try {
+            if (loginMember.isAdmin()) {
+                newReservation = reserveByAdmin(loginMember, request);
+            } else {
+                newReservation = reserveByUser(loginMember, request);
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(
+                    loginMember.id(),
+                    Map.of("date", request.date(),  "themeId", request.theme(), "timeId", request.time()),
+                    "이미 예약이 존재합니다."
+            );
         }
-
-        Reservation newReservation = reservationService.save(username, reservationRequest.date(), reservationRequest.theme(), reservationRequest.time());
-
         return ResponseEntity.created(URI.create("/reservations/" + newReservation.getId())).body(ReservationResponse.from(newReservation));
     }
 
@@ -60,5 +65,19 @@ public class ReservationController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reservationService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private Reservation reserveByAdmin(LoginMember loginMember, ReservationRequest request) {
+        if (!StringUtils.hasText(request.name())) {
+            throw new BadRequestException(loginMember.id(), Map.of("ReservationRequest.name", "is Null"), "name 필드는 필수값입니다.");
+        }
+        return reservationService.createReservation(loginMember.id(), request.name(), request.date(), request.theme(), request.time());
+    }
+
+    private Reservation reserveByUser(LoginMember loginMember, ReservationRequest request) {
+        if (StringUtils.hasText(request.name())) {
+            throw new BadRequestException(loginMember.id(), Map.of("name", request.name()), "HTTP 요청 바디의 형식이 잘못되었습니다.");
+        }
+        return reservationService.createReservation(loginMember.id(), loginMember.name(), request.date(), request.theme(), request.time());
     }
 }

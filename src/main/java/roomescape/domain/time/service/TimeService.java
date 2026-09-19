@@ -3,7 +3,6 @@ package roomescape.domain.time.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.domain.reservation.entity.Reservation;
-import roomescape.domain.reservation.repository.ReservationDao;
 import roomescape.domain.reservation.repository.ReservationRepository;
 import roomescape.domain.time.entity.AvailableTime;
 import roomescape.domain.time.entity.Time;
@@ -15,10 +14,11 @@ import java.util.List;
 
 @Service
 public class TimeService {
+
     private TimeRepository timeRepository;
     private ReservationRepository reservationRepository;
 
-    public TimeService(TimeRepository timeRepository, ReservationDao reservationRepository) {
+    public TimeService(TimeRepository timeRepository, ReservationRepository reservationRepository) {
         this.timeRepository = timeRepository;
         this.reservationRepository = reservationRepository;
     }
@@ -30,7 +30,7 @@ public class TimeService {
         return times.stream()
                 .map(time -> new AvailableTime(
                         time.getId(),
-                        time.getValue(),
+                        time.getTimeValue(),
                         reservations.stream()
                                 .anyMatch(reservation -> reservation.getTime().getId().equals(time.getId()))
                 ))

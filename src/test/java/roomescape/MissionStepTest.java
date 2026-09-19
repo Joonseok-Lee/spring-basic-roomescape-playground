@@ -32,8 +32,8 @@ public class MissionStepTest {
     @Test
     void 일단계() {
         Map<String, String> params = new HashMap<>();
-        params.put("email", "admin@email.com");
-        params.put("password", "password");
+        params.put("email", "admin@dummy.com");
+        params.put("password", "dummy");
 
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(ContentType.JSON)
@@ -54,14 +54,16 @@ public class MissionStepTest {
                 .statusCode(200)
                 .extract();
 
-        assertThat(checkResponse.body().jsonPath().getString("name")).isEqualTo("어드민");
+        assertThat(checkResponse.body().jsonPath().getString("name")).isEqualTo("더미_어드민");
     }
 
     @Test
     void 이단계() {
-        String token = createToken("admin@email.com", "password");  // 일단계에서 토큰을 추출하는 로직을 메서드로 따로 만들어서 활용하세요.
+        String token = createToken("admin@dummy.com", "dummy");  // 일단계에서 토큰을 추출하는 로직을 메서드로 따로 만들어서 활용하세요.
 
         Map<String, String> params = new HashMap<>();
+        // 관리자의 예약 생성의 경우, 예약자의 이름을 반드시 포함해야 함
+        params.put("name", "더미_유저");
         params.put("date", LocalDate.now().plusDays(1).toString());
         params.put("time", "1");
         params.put("theme", "1");
@@ -75,9 +77,11 @@ public class MissionStepTest {
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(201);
-        assertThat(response.as(ReservationResponse.class).name()).isEqualTo("어드민");
+        assertThat(response.as(ReservationResponse.class).name()).isEqualTo("더미_유저");
 
-        params.put("name", "브라운");
+        params.put("name", "더미_유저");
+        // 같은 날짜, 시각, 테마는 복합 유니크 속성이므로, 날짜를 수정
+        params.replace("date",  LocalDate.now().plusDays(2).toString());
 
         ExtractableResponse<Response> adminResponse = RestAssured.given().log().all()
                 .body(params)
@@ -88,12 +92,12 @@ public class MissionStepTest {
                 .extract();
 
         assertThat(adminResponse.statusCode()).isEqualTo(201);
-        assertThat(adminResponse.as(ReservationResponse.class).name()).isEqualTo("브라운");
+        assertThat(adminResponse.as(ReservationResponse.class).name()).isEqualTo("더미_유저");
     }
 
     @Test
     void 삼단계() {
-        String brownToken = createToken("brown@email.com", "password");
+        String brownToken = createToken("user@dummy.com", "dummy");
 
         RestAssured.given().log().all()
                 .cookie("token",brownToken)
@@ -101,7 +105,7 @@ public class MissionStepTest {
                 .then().log().all()
                 .statusCode(403);
 
-        String adminToken = createToken("admin@email.com", "password");
+        String adminToken = createToken("admin@dummy.com", "dummy");
 
         RestAssured.given().log().all()
                 .cookie("token",adminToken)

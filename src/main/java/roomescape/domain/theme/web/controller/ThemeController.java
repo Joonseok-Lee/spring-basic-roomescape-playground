@@ -3,7 +3,9 @@ package roomescape.domain.theme.web.controller;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import roomescape.domain.auth.principal.LoginMember;
 import roomescape.domain.auth.web.support.annotation.AdminOnly;
+import roomescape.domain.auth.web.support.annotation.Login;
 import roomescape.domain.auth.web.support.annotation.Public;
 import roomescape.domain.theme.entity.Theme;
 import roomescape.domain.theme.service.ThemeService;
@@ -37,8 +39,11 @@ public class ThemeController {
 
     @AdminOnly
     @DeleteMapping("/themes/{id}")
-    public ResponseEntity<Void> deleteTheme(@PathVariable Long id) {
-        themeService.deleteTheme(id);
+    public ResponseEntity<Void> deleteTheme(
+            @PathVariable(name = "id") Long themeId,
+            @Login LoginMember loginMember
+    ) {
+        themeService.deleteTheme(loginMember.id(), themeId);
         return ResponseEntity.noContent().build();
     }
 }

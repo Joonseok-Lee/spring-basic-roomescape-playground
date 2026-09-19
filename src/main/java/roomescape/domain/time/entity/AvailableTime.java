@@ -20,4 +20,8 @@ public class AvailableTime {
     public LocalTime getTime() {
         return time;
     }
+
+    public boolean isBooked() {
+        return booked;
+    }
 }

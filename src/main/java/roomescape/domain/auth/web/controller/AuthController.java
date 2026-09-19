@@ -47,7 +47,7 @@ public class AuthController {
     public UsernameResponse getName(
             @Login LoginMember member
     ) {
-        return new UsernameResponse(member.getName());
+        return new UsernameResponse(member.name());
     }
 
     @Public
