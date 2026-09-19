@@ -13,6 +13,8 @@ public interface ReservationRepository extends ListCrudRepository<Reservation, L
 
     List<Reservation> findByDateAndThemeId(LocalDate date, Long themeId);
 
+    List<Reservation> findAllByMember_Id(Long memberId);
+
     boolean existsByTheme(Theme theme);
 
     boolean existsByDateAndTimeAndTheme(LocalDate date, Time time, Theme theme);

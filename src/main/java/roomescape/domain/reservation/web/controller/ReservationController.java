@@ -11,6 +11,7 @@ import roomescape.domain.auth.web.support.annotation.Login;
 import roomescape.domain.auth.web.support.annotation.LoginRequired;
 import roomescape.domain.reservation.entity.Reservation;
 import roomescape.domain.reservation.service.ReservationService;
+import roomescape.domain.reservation.web.dto.MyReservationsResponse;
 import roomescape.domain.reservation.web.dto.ReservationRequest;
 import roomescape.domain.reservation.web.dto.ReservationResponse;
 import roomescape.global.exception.BadRequestException;
@@ -65,6 +66,14 @@ public class ReservationController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reservationService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @LoginRequired
+    @GetMapping("/reservations-mine")
+    public List<MyReservationsResponse> getAllMyReservation(
+            @Login LoginMember loginMember
+    ) {
+        return MyReservationsResponse.from(reservationService.findAllReservationByUser(loginMember.id()));
     }
 
     private Reservation reserveByAdmin(LoginMember loginMember, ReservationRequest request) {

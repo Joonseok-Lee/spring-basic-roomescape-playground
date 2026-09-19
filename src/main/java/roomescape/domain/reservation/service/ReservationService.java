@@ -14,6 +14,7 @@ import roomescape.global.exception.ConflictException;
 import roomescape.global.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,10 @@ public class ReservationService {
         }
 
         return reservationRepository.save(new Reservation(date, member, foundTime, foundTheme));
+    }
+
+    public List<Reservation> findAllReservationByUser(Long memberId) {
+        return reservationRepository.findAllByMember_Id(memberId);
     }
 
     @Transactional
