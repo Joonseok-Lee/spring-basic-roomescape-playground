@@ -108,6 +108,6 @@ public class ReservationRepositoryTest {
     }
 
     private Member saveMember(String nickname) {
-        return memberRepository.save(new Member(nickname, nickname.toLowerCase(Locale.ROOT) + "@dummy.com", "dummy", "USER"));
+        return memberRepository.save(new Member(nickname, nickname.toLowerCase() + "@dummy.com", "dummy", "USER"));
     }
 }

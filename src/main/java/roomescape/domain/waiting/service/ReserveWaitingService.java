@@ -63,7 +63,7 @@ public class ReserveWaitingService {
         }
 
         ReserveWaiting newReserveWaiting = reserveWaitingRepository.save(new ReserveWaiting(foundMember, date, foundTime, foundTheme));
-        int aheadCount = reserveWaitingRepository.countByDateAndTimeAndThemeAndIdLessThan(date, foundTime, foundTheme, newReserveWaiting.getId());
+        Long aheadCount = reserveWaitingRepository.countByDateAndTimeAndThemeAndIdLessThan(date, foundTime, foundTheme, newReserveWaiting.getId());
 
         return new WaitingWithRank(newReserveWaiting, aheadCount);
     }

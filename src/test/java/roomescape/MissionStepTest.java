@@ -11,6 +11,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import roomescape.domain.reservation.web.dto.MyReservationsResponse;
 import roomescape.domain.reservation.web.dto.ReservationResponse;
+import roomescape.domain.waiting.web.dto.WaitingResponse;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -127,7 +128,49 @@ public class MissionStepTest {
                 .statusCode(200)
                 .extract().jsonPath().getList(".", MyReservationsResponse.class);
 
-        assertThat(reservations).hasSize(1);
+        // data-test.sql에서 user@dummy.com은 예약 1건과 예약 대기 1건을 보유
+        assertThat(reservations).hasSize(2);
+        assertThat(reservations).filteredOn(it -> it.status().equals("예약")).hasSize(1);
+    }
+
+    @Test
+    void 육단계() {
+        String brownToken = createToken("user@dummy.com", "dummy");
+
+        Map<String, String> params = new HashMap<>();
+        params.put("date", LocalDate.now().plusDays(3).toString());
+        params.put("time", "1");
+        params.put("theme", "1");
+
+        // 예약 대기 생성
+        WaitingResponse waiting = RestAssured.given().log().all()
+                .body(params)
+                .cookie("token", brownToken)
+                .contentType(ContentType.JSON)
+                .post("/waitings")
+                .then().log().all()
+                .statusCode(201)
+                .extract().as(WaitingResponse.class);
+
+        // 내 예약 목록 조회
+        List<MyReservationsResponse> myReservations = RestAssured.given().log().all()
+                .body(params)
+                .cookie("token", brownToken)
+                .contentType(ContentType.JSON)
+                .get("/reservations-mine")
+                .then().log().all()
+                .statusCode(200)
+                .extract().jsonPath().getList(".", MyReservationsResponse.class);
+
+        // 예약 대기 상태 확인
+        String status = myReservations.stream()
+                .filter(it -> it.id().equals(waiting.id()))
+                .filter(it -> !it.status().equals("예약"))
+                .findFirst()
+                .map(MyReservationsResponse::status)
+                .orElse(null);
+
+        assertThat(status).isEqualTo("1번째 예약대기");
     }
 
     private String createToken(String email, String password) {

@@ -10,3 +10,6 @@ values ('00:00');
 
 insert into reservation (member_id, date, time_id, theme_id)
 values (2, '9999-12-31', 1, 1);
+
+insert into reserve_waiting (member_id, date, time_id, theme_id)
+values (2, '9999-01-01', 1, 1);

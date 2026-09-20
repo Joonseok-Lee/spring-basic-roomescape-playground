@@ -26,12 +26,13 @@ public interface ReserveWaitingRepository extends ListCrudRepository<ReserveWait
      * @param reserveWaitingId 생성한 예약 대기 건의 ID를 전달해주세요.<br>GenerationType.IDENTITY 등 ID가 순차 증가할 때에만 유효하며, 이 ID보다 값이 작은 레코드 행수를 계산합니다.
      * @return 같은 날짜, 시각, 테마에 대한 예약 대기를 전달받은 reserve_waiting.id보다 작은 레코드 행수를 반환
      */
-    int countByDateAndTimeAndThemeAndIdLessThan(LocalDate date, Time time, Theme theme, Long reserveWaitingId);
+    Long countByDateAndTimeAndThemeAndIdLessThan(LocalDate date, Time time, Theme theme, Long reserveWaitingId);
 
     /**
      * 특정 Member의 모든 예약 대기를 조회합니다.
      * @return memberId에 해당하는 모든 예약 대기 레코드를 조회하며,<br>날짜, 시각, 테마가 완전히 일치하며 memberId에 해당하는 레코드보다 먼저, 해당하는 레코드의 개수를 셉니다. GenerationType.IDENTITY 등 ID 값이 순차 증가하는 경우에만 유효합니다.
      */
+    @SuppressWarnings("JpaQlInspection")
     @Query("""
 select new roomescape.domain.waiting.service.result.WaitingWithRank(
     rw,
