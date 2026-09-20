@@ -26,9 +26,11 @@ public class Reservation {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "time_id", nullable = false)
     private Time time;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "theme_id", nullable = false)
     private Theme theme;
 
     protected Reservation() {
