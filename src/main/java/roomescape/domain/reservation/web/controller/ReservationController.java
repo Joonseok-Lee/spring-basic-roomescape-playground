@@ -14,20 +14,26 @@ import roomescape.domain.reservation.service.ReservationService;
 import roomescape.domain.reservation.web.dto.MyReservationsResponse;
 import roomescape.domain.reservation.web.dto.ReservationRequest;
 import roomescape.domain.reservation.web.dto.ReservationResponse;
+import roomescape.domain.waiting.service.ReserveWaitingService;
+import roomescape.domain.waiting.service.result.WaitingWithRank;
 import roomescape.global.exception.BadRequestException;
 import roomescape.global.exception.ConflictException;
 
 import java.net.URI;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @RestController
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final ReserveWaitingService reserveWaitingService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService,  ReserveWaitingService reserveWaitingService) {
         this.reservationService = reservationService;
+        this.reserveWaitingService = reserveWaitingService;
     }
 
     @AdminOnly
@@ -73,7 +79,16 @@ public class ReservationController {
     public List<MyReservationsResponse> getAllMyReservation(
             @Login LoginMember loginMember
     ) {
-        return MyReservationsResponse.from(reservationService.findAllReservationByUser(loginMember.id()));
+        List<Reservation> reservations = reservationService.findAllReservationByUser(loginMember.id());
+        List<WaitingWithRank> reserveWaits = reserveWaitingService.findAllMemberReserveWaits(loginMember.id());
+
+        return Stream.concat(
+                reservations.stream().map(MyReservationsResponse::from),
+                reserveWaits.stream().map(MyReservationsResponse::from)
+        ).sorted(
+                Comparator.comparing(MyReservationsResponse::date)
+                        .thenComparing(MyReservationsResponse::time)
+        ).toList();
     }
 
     private Reservation reserveByAdmin(LoginMember loginMember, ReservationRequest request) {

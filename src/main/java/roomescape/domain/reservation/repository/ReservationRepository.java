@@ -1,6 +1,7 @@
 package roomescape.domain.reservation.repository;
 
 import org.springframework.data.repository.ListCrudRepository;
+import roomescape.domain.member.entity.Member;
 import roomescape.domain.reservation.entity.Reservation;
 import roomescape.domain.theme.entity.Theme;
 import roomescape.domain.time.entity.Time;
@@ -18,4 +19,6 @@ public interface ReservationRepository extends ListCrudRepository<Reservation, L
     boolean existsByTheme(Theme theme);
 
     boolean existsByDateAndTimeAndTheme(LocalDate date, Time time, Theme theme);
+
+    boolean existsByMemberAndDateAndTimeAndTheme(Member member, LocalDate date, Time time, Theme theme);
 }
