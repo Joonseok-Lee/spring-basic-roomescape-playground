@@ -7,7 +7,6 @@ import roomescape.domain.theme.entity.Theme;
 import roomescape.domain.time.entity.Time;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public interface ReservationRepository extends ListCrudRepository<Reservation, Long> {

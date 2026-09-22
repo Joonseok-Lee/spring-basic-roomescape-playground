@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import roomescape.domain.auth.principal.LoginMember;
 import roomescape.domain.auth.web.support.annotation.Login;
 import roomescape.domain.auth.web.support.annotation.LoginRequired;
+import roomescape.domain.waiting.service.ReserveWaitingService;
 import roomescape.domain.waiting.service.result.WaitingWithRank;
 import roomescape.domain.waiting.web.dto.WaitingRequest;
-import roomescape.domain.waiting.service.ReserveWaitingService;
 import roomescape.domain.waiting.web.dto.WaitingResponse;
 import roomescape.global.exception.ConflictException;
 
