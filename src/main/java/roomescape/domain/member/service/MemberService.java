@@ -20,8 +20,8 @@ public class MemberService {
     @Transactional
     public Member createMember(String nickname, String email, String password) {
 
-        if (memberRepository.existsByEmail(email)) {
-            throw new ConflictException(null, Map.of("email", email), "이미 가입된 이메일입니다.");
+        if (memberRepository.existsByNicknameOrEmail(nickname, email)) {
+            throw new ConflictException(null, Map.of("email", email, "nickname", nickname), "이미 가입된 정보입니다.");
         }
 
         return memberRepository.save(new Member(nickname, email, password, "USER"));

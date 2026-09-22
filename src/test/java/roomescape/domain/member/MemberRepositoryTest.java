@@ -44,17 +44,34 @@ public class MemberRepositoryTest {
     }
 
     @Test
-    void 이미_저장된_email로_existsByEmail을_호출하면_true를_반환한다() {
+    void 중복된_nickname으로_저장하면_예외가_발생한다() {
         // data-test.sql
-        boolean isExistsEmail = memberRepository.existsByEmail("admin@dummy.com");
+        Assertions.assertThrows(
+                DataIntegrityViolationException.class,
+                () -> memberRepository.save(new Member("더미_유저", email, password, role))
+        );
+    }
+
+    @Test
+    void 이미_저장된_email로_existsByNicknameOrEmail을_호출하면_true를_반환한다() {
+        // data-test.sql
+        boolean isExistsEmail = memberRepository.existsByNicknameOrEmail(name, "admin@dummy.com");
 
         assertThat(isExistsEmail).isTrue();
     }
 
     @Test
-    void 저장된_적_없는_email로_existsByEmail을_호출하면_false를_반환한다() {
+    void 이미_저장된_nickname으로_existsByNicknameOrEmail을_호출하면_true를_반환한다() {
         // data-test.sql
-        boolean isExistsEmail = memberRepository.existsByEmail("never@saved.com");
+        boolean isExistsNickname = memberRepository.existsByNicknameOrEmail("더미_유저", email);
+
+        assertThat(isExistsNickname).isTrue();
+    }
+
+    @Test
+    void 저장된_적_없는_nickname과_email로_existsByNicknameOrEmail을_호출하면_false를_반환한다() {
+        // data-test.sql
+        boolean isExistsEmail = memberRepository.existsByNicknameOrEmail(name, email);
 
         assertThat(isExistsEmail).isFalse();
     }

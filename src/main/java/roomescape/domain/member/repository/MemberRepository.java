@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface MemberRepository extends CrudRepository<Member, Long> {
 
     Optional<Member> findByNickname(String nickname);
-    boolean existsByEmail(String email);
+    boolean existsByNicknameOrEmail(String nickname, String email);
 }
