@@ -35,7 +35,7 @@ public class AuthController {
             HttpServletRequest httpServletRequest
     ) {
 
-        LoginMember loginMember = authService.login(request.email(),  request.password());
+        LoginMember loginMember = authService.login(request.email(), request.password());
 
         sessionManager.store(httpServletRequest, loginMember);
 

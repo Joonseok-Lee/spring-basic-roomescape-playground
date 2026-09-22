@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MemberRepositoryTest {
 
     private final String name = "Alice";
+    private final String conflictNickname = "더미_유저";
     private final String email = "test@test.com";
     private final String password = "test";
     private final String role = "USER";
@@ -48,30 +49,38 @@ public class MemberRepositoryTest {
         // data-test.sql
         Assertions.assertThrows(
                 DataIntegrityViolationException.class,
-                () -> memberRepository.save(new Member("더미_유저", email, password, role))
+                () -> memberRepository.save(new Member(conflictNickname, email, password, role))
         );
     }
 
     @Test
-    void 이미_저장된_email로_existsByNicknameOrEmail을_호출하면_true를_반환한다() {
+    void 이미_저장된_email로_existsByEmail을_호출하면_true를_반환한다() {
         // data-test.sql
-        boolean isExistsEmail = memberRepository.existsByNicknameOrEmail(name, "admin@dummy.com");
+        boolean isExistsEmail = memberRepository.existsByEmail("admin@dummy.com");
 
         assertThat(isExistsEmail).isTrue();
     }
 
     @Test
-    void 이미_저장된_nickname으로_existsByNicknameOrEmail을_호출하면_true를_반환한다() {
+    void 저장된_적_없는_email로_existsByEmail을_호출하면_false를_반환한다() {
         // data-test.sql
-        boolean isExistsNickname = memberRepository.existsByNicknameOrEmail("더미_유저", email);
+        boolean isExistsEmail = memberRepository.existsByEmail(email);
 
-        assertThat(isExistsNickname).isTrue();
+        assertThat(isExistsEmail).isFalse();
     }
 
     @Test
-    void 저장된_적_없는_nickname과_email로_existsByNicknameOrEmail을_호출하면_false를_반환한다() {
+    void 이미_저장된_nickname으로_existsByNickname을_호출하면_true를_반환한다() {
         // data-test.sql
-        boolean isExistsEmail = memberRepository.existsByNicknameOrEmail(name, email);
+        boolean isExistsEmail = memberRepository.existsByNickname(conflictNickname);
+
+        assertThat(isExistsEmail).isTrue();
+    }
+
+    @Test
+    void 저장된_적_없는_nickname으로_existsByNickname을_호출하면_false를_반환한다() {
+        // data-test.sql
+        boolean isExistsEmail = memberRepository.existsByEmail(email);
 
         assertThat(isExistsEmail).isFalse();
     }
